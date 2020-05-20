@@ -1,0 +1,14 @@
+{
+  "name": "mongo2es",
+  "version": "1.0.0",
+  "description": "mongodata to es",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "MiaoShi",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^3.5.7"
+  }
+}
