@@ -32,18 +32,21 @@ function cmd_sync(cmd) {
 
 
 function es_bulk(string){
-    const cmd_head = `curl -XPUT -H "Content-Type: application/x-ndjson" -H "Authorization: Basic ${config.es_token}" -d "`
-    const cmd_tail = '" ' + config.es + '/_bulk'
-    const cmd = cmd_head + JSON.stringify(doc).replace(/"/g, '\\"') + cmd_tail
+    const cmd_head = `curl -XPOST -H "Content-Type: application/x-ndjson" -H "Authorization: Basic ${config.es_token}" -d "`
+    const cmd_tail = '" ' + config.es + '/_bulk?filter_path=items.*.error'
+    const cmd = cmd_head + string.replace(/"/g, '\\"') + cmd_tail
+    return cmd_sync(cmd)
+}
+function es_bulk_file(file){
+    const cmd_head = `curl -XPOST -H "Content-Type: application/x-ndjson" -H "Authorization: Basic ${config.es_token}" --data-binary @`
+    const cmd_tail = ' ' + config.es + '/_bulk?filter_path=items.*.error'
+    const cmd = cmd_head + file + cmd_tail
     return cmd_sync(cmd)
 }
 
 
 
 module.exports = {
-    es_put,
-    es_get,
-    es_put_mapping,
-    es_get_query,
-    es_update
+    es_bulk,
+    es_bulk_file
 }

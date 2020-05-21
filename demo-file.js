@@ -1,6 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
 const fs = require('fs');
-const {es_bulk} = require("./es.js");
+const {es_bulk_file} = require("./es.js");
 // Connection url
 const url = 'mongodb://localhost:27017';
 
@@ -11,15 +11,18 @@ const dbName = 'staking';
 var client = new MongoClient(url);
 var db = null
 var _bulk_string=''
+var docs = 0
 
 
 function docToES(index_name){
 	return function(doc){
-		doc.ts = new Date();
+		docs++
+		doc.import_at = new Date();
 		delete doc._id;
 		let one_action = JSON.stringify({index:{_index:index_name}})+"\n"+JSON.stringify(doc)+"\n";
 		if(_bulk_string.length + one_action.length > POST_LIMIT){
-			let es_res = es_bulk(_bulk_string);
+			fs.writeFileSync("data.jsonl",_bulk_string)
+			let es_res = es_bulk_file("data.jsonl");
 			console.log(JSON.stringify(es_res))
 		}else{
 			_bulk_string = _bulk_string+one_action;
@@ -31,6 +34,7 @@ function docToES(index_name){
 
 
 async function main(){
+	console.log(new Date(), "start");
 	if(!client.isConnected())
 		await client.connect();
 	
@@ -44,10 +48,11 @@ async function main(){
 	}
 
 	client.close();
-	let es_res = es_bulk(_bulk_string);
+	fs.writeFileSync("data.jsonl",_bulk_string)
+	let es_res = es_bulk_file("data.jsonl");
 	console.log(JSON.stringify(es_res))
 	
-	
+	console.log(new Date(), "total", docs, "data");
 }
 
 main()
